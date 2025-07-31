@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser } from "../api/api";
+import { loginUser } from "../../api/api";
 
 function LoginForm({ onLogin }) {
     const [email, setEmail] = useState("");
@@ -11,8 +11,9 @@ function LoginForm({ onLogin }) {
         setError("");
         try {
             const data = await loginUser(email, password);
+            const expiresAt = Date.now() + data.expiresIn * 1000;
             localStorage.setItem("token", data.token);
-            localStorage.setItem("expiresAt", data.expiresAt);
+            localStorage.setItem("expiresAt", expiresAt);
             onLogin();
         } catch (err) {
             setError("Invalid email or password");
