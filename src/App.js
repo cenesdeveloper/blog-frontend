@@ -24,26 +24,27 @@ function App() {
     };
 
     return (
-        <Router>
-            <div>
-                {isLoggedIn && <button onClick={handleLogout}>Logout</button>}
-                <Routes>
-                    {!isLoggedIn ? (
-                        <Route path="*" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
-                    ) : (
-                        <>
-                            <Route path="/" element={<MainPage />} />
-                            <Route path="/create" element={<CreatePostPage />} />
-                            <Route path="/categories" element={<CategoryPage />} />
-                            <Route path="/posts/:id" element={<PostDetailPage />} />
-                            <Route path="/tags" element={<TagPage />} />
-                            <Route path="*" element={<Navigate to="/" />} />
-                        </>
-                    )}
-                </Routes>
-            </div>
-        </Router>
-    );
+
+    <Router>
+        <div>
+            <Routes>
+                {!isLoggedIn ? (
+                    <Route path="*" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
+                ) : (
+                    <>
+                        <Route path="/" element={<MainPage onLogout={handleLogout} />} />
+                        <Route path="/create" element={<CreatePostPage onLogout={handleLogout} />} />
+                        <Route path="/categories" element={<CategoryPage onLogout={handleLogout} />} />
+                        <Route path="/posts/:id" element={<PostDetailPage onLogout={handleLogout} />} />
+                        <Route path="/tags" element={<TagPage onLogout={handleLogout} />} />
+                        <Route path="*" element={<Navigate to="/" />} />
+                    </>
+                )}
+            </Routes>
+        </div>
+    </Router>
+
+);
 }
 
 export default App;
