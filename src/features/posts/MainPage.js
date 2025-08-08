@@ -6,8 +6,8 @@ function MainPage({ onLogout }) {
     const [posts, setPosts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedTag, setSelectedTag] = useState(null);
+    const [selectedCategories, setSelectedCategories] = useState([]); // <-- array
+    const [selectedTags, setSelectedTags] = useState([]);             // <-- array
     const [editingPostId, setEditingPostId] = useState(null);
     const [editFields, setEditFields] = useState({});
     const navigate = useNavigate();
@@ -15,30 +15,31 @@ function MainPage({ onLogout }) {
     const token = localStorage.getItem("token");
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/v1/categories")
-            .then((res) => res.json())
-            .then(setCategories);
-        fetch("http://localhost:8080/api/v1/tags")
-            .then((res) => res.json())
-            .then(setTags);
+        fetch("http://localhost:8080/api/v1/categories").then(r => r.json()).then(setCategories);
+        fetch("http://localhost:8080/api/v1/tags").then(r => r.json()).then(setTags);
     }, []);
 
+    // Build URL with multiple categoryId & tagId query params
     useEffect(() => {
         let url = "http://localhost:8080/api/v1/posts";
-        const params = [];
-        if (selectedCategory) params.push(`categoryId=${selectedCategory}`);
-        if (selectedTag) params.push(`tagId=${selectedTag}`);
-        if (params.length > 0) url += "?" + params.join("&");
+        const params = new URLSearchParams();
 
-        fetch(url).then((res) => res.json()).then(setPosts);
-    }, [selectedCategory, selectedTag]);
+        // Repeat keys like: ?categoryId=1&categoryId=2&tagId=10&tagId=11
+        selectedCategories.forEach(id => params.append("categoryId", id));
+        selectedTags.forEach(id => params.append("tagId", id));
+
+        const qs = params.toString();
+        if (qs) url += "?" + qs;
+
+        fetch(url).then(r => r.json()).then(setPosts);
+    }, [selectedCategories, selectedTags]);
 
     const handleDelete = async (id) => {
         await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });
-        setPosts((prev) => prev.filter((p) => p.id !== id));
+        setPosts(prev => prev.filter(p => p.id !== id));
     };
 
     const handleEdit = (post) => {
@@ -49,18 +50,15 @@ function MainPage({ onLogout }) {
             content: post.content,
             status: post.status,
             categoryId: post.category?.id,
-            tagIds: post.tags.map((t) => t.id),
+            tagIds: post.tags.map(t => t.id),
         });
     };
 
     const handleUpdate = async (id) => {
-        console.log("Sending update payload:", editFields);
-
         if (!editFields.categoryId) {
             alert("Please select a category before updating.");
             return;
         }
-
         const res = await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
             method: "PUT",
             headers: {
@@ -72,23 +70,37 @@ function MainPage({ onLogout }) {
 
         if (!res.ok) {
             const errorText = await res.text();
-            console.error("Update failed:", errorText);
             alert(`Failed to update post: ${res.status} - ${errorText}`);
             return;
         }
 
         setEditingPostId(null);
-        fetch("http://localhost:8080/api/v1/posts").then((r) => r.json()).then(setPosts);
+        fetch("http://localhost:8080/api/v1/posts").then(r => r.json()).then(setPosts);
     };
 
-    const toggleTag = (tagId) => {
-        setEditFields((prev) => ({
+    const toggleTagInEdit = (tagId) => {
+        setEditFields(prev => ({
             ...prev,
             tagIds: prev.tagIds.includes(tagId)
-                ? prev.tagIds.filter((id) => id !== tagId)
+                ? prev.tagIds.filter(id => id !== tagId)
                 : [...prev.tagIds, tagId],
         }));
     };
+
+    // NEW: toggle helpers for filters
+    const toggleCategoryFilter = (id) => {
+        setSelectedCategories(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+    const toggleTagFilter = (id) => {
+        setSelectedTags(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+    };
+
+    const clearCategories = () => setSelectedCategories([]);
+    const clearTags =   () => setSelectedTags([]);
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -100,58 +112,62 @@ function MainPage({ onLogout }) {
                     {/* Category filter */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                         <div className="mb-3 flex items-center justify-between">
-                            <h4 className="text-sm font-semibold text-slate-800">Filter by Category</h4>
-                            <button
-                                onClick={() => setSelectedCategory(null)}
-                                className="text-xs font-medium text-indigo-600 hover:text-indigo-700"
-                            >
+                            <h4 className="text-sm font-semibold text-slate-800">
+                                Filter by Category
+                            </h4>
+                            <button onClick={clearCategories} className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
                                 Clear
                             </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            {categories.map((cat) => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setSelectedCategory(cat.id)}
-                                    className={[
-                                        "px-3 py-1.5 rounded-full text-sm border",
-                                        selectedCategory === cat.id
-                                            ? "bg-indigo-600 text-white border-indigo-600"
-                                            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50",
-                                    ].join(" ")}
-                                >
-                                    {cat.name}
-                                </button>
-                            ))}
+                            {categories.map((cat) => {
+                                const active = selectedCategories.includes(cat.id);
+                                return (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => toggleCategoryFilter(cat.id)}
+                                        className={[
+                                            "px-3 py-1.5 rounded-full text-sm border",
+                                            active
+                                                ? "bg-indigo-600 text-white border-indigo-600"
+                                                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50",
+                                        ].join(" ")}
+                                    >
+                                        {cat.name}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
                     {/* Tag filter */}
                     <div className="rounded-xl border border-slate-200 bg-white p-4">
                         <div className="mb-3 flex items-center justify-between">
-                            <h4 className="text-sm font-semibold text-slate-800">Filter by Tag</h4>
-                            <button
-                                onClick={() => setSelectedTag(null)}
-                                className="text-xs font-medium text-indigo-600 hover:text-indigo-700"
-                            >
+                            <h4 className="text-sm font-semibold text-slate-800">
+                                Filter by Tag
+                            </h4>
+                            <button onClick={clearTags} className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
                                 Clear
                             </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            {tags.map((tag) => (
-                                <button
-                                    key={tag.id}
-                                    onClick={() => setSelectedTag(tag.id)}
-                                    className={[
-                                        "px-3 py-1.5 rounded-full text-sm border",
-                                        selectedTag === tag.id
-                                            ? "bg-emerald-600 text-white border-emerald-600"
-                                            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50",
-                                    ].join(" ")}
-                                >
-                                    {tag.name}
-                                </button>
-                            ))}
+                            {tags.map((tag) => {
+                                const active = selectedTags.includes(tag.id);
+                                return (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => toggleTagFilter(tag.id)}
+                                        className={[
+                                            "px-3 py-1.5 rounded-full text-sm border",
+                                            active
+                                                ? "bg-emerald-600 text-white border-emerald-600"
+                                                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50",
+                                        ].join(" ")}
+                                    >
+                                        {tag.name}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
@@ -164,21 +180,18 @@ function MainPage({ onLogout }) {
 
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {posts.map((post) => (
-                            <div
-                                key={post.id}
-                                className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition"
-                            >
+                            <div key={post.id} className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition">
                                 {editingPostId === post.id ? (
                                     <div className="space-y-3">
                                         <input
                                             value={editFields.title}
-                                            onChange={(e) => setEditFields((prev) => ({ ...prev, title: e.target.value }))}
+                                            onChange={(e) => setEditFields(prev => ({ ...prev, title: e.target.value }))}
                                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
                                             placeholder="Title"
                                         />
                                         <textarea
                                             value={editFields.content}
-                                            onChange={(e) => setEditFields((prev) => ({ ...prev, content: e.target.value }))}
+                                            onChange={(e) => setEditFields(prev => ({ ...prev, content: e.target.value }))}
                                             className="min-h-[120px] w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
                                             placeholder="Content"
                                         />
@@ -188,9 +201,7 @@ function MainPage({ onLogout }) {
                                                 <label className="text-xs font-medium text-slate-600">Status</label>
                                                 <select
                                                     value={editFields.status}
-                                                    onChange={(e) =>
-                                                        setEditFields((prev) => ({ ...prev, status: e.target.value.toUpperCase() }))
-                                                    }
+                                                    onChange={(e) => setEditFields(prev => ({ ...prev, status: e.target.value.toUpperCase() }))}
                                                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
                                                 >
                                                     <option value="PUBLISHED">Published</option>
@@ -202,7 +213,7 @@ function MainPage({ onLogout }) {
                                                 <label className="text-xs font-medium text-slate-600">Category</label>
                                                 <select
                                                     value={editFields.categoryId || ""}
-                                                    onChange={(e) => setEditFields((prev) => ({ ...prev, categoryId: e.target.value }))}
+                                                    onChange={(e) => setEditFields(prev => ({ ...prev, categoryId: e.target.value }))}
                                                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
                                                 >
                                                     <option value="">-- Category --</option>
@@ -223,7 +234,7 @@ function MainPage({ onLogout }) {
                                                         <input
                                                             type="checkbox"
                                                             checked={editFields.tagIds.includes(tag.id)}
-                                                            onChange={() => toggleTag(tag.id)}
+                                                            onChange={() => toggleTagInEdit(tag.id)}
                                                             className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                                                         />
                                                         <span className="text-slate-700">{tag.name}</span>
@@ -264,10 +275,7 @@ function MainPage({ onLogout }) {
                         </span>
                                             )}
                                             {post.tags?.map((t) => (
-                                                <span
-                                                    key={t.id}
-                                                    className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
-                                                >
+                                                <span key={t.id} className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
                           #{t.name}
                         </span>
                                             ))}
