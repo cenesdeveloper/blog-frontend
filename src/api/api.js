@@ -30,3 +30,32 @@ export const fetchPosts = async (categoryId, tagId) => {
     if (!res.ok) throw new Error("Failed to fetch posts");
     return res.json();
 };
+
+export async function registerUser(email, password, matchingPassword) {
+    const res = await fetch("http://localhost:8080/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, matchingPassword }),
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!res.ok) {
+        let msg = `Registration failed (${res.status})`;
+        if (contentType.includes("application/json")) {
+            const data = await res.json().catch(() => null);
+            msg = data?.message || Object.values(data || {})[0] || msg;
+        } else {
+            const text = await res.text().catch(() => "");
+            if (text) msg = text;
+        }
+        throw new Error(msg);
+    }
+
+    if (res.status === 204) return null;
+    if (contentType.includes("application/json")) {
+        return await res.json();
+    }
+    return null;
+}
+
