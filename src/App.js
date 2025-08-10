@@ -6,6 +6,7 @@ import CreatePostPage from "./features/posts/CreatePostPage";
 import CategoryPage from "./features/categories/CategoryPage";
 import PostDetailPage from "./features/posts/PostDetailPage";
 import TagPage from "./features/tags/TagsPage";
+import DraftPostsPage from "./features/posts/DraftPostsPage";
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,6 +38,7 @@ function App() {
                         <Route path="/categories" element={<CategoryPage onLogout={handleLogout} />} />
                         <Route path="/posts/:id" element={<PostDetailPage onLogout={handleLogout} />} />
                         <Route path="/tags" element={<TagPage onLogout={handleLogout} />} />
+                        <Route path="/drafts" element={<DraftPostsPage onLogout={handleLogout} />} />
                         <Route path="*" element={<Navigate to="/" />} />
                     </>
                 )}
