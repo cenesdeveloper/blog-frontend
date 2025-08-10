@@ -7,6 +7,8 @@ import CategoryPage from "./features/categories/CategoryPage";
 import PostDetailPage from "./features/posts/PostDetailPage";
 import TagPage from "./features/tags/TagsPage";
 import DraftPostsPage from "./features/posts/DraftPostsPage";
+import RegisterPage from "./features/auth/RegisterPage";
+
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,25 +28,29 @@ function App() {
 
     return (
 
-    <Router>
-        <div>
-            <Routes>
-                {!isLoggedIn ? (
-                    <Route path="*" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
-                ) : (
-                    <>
-                        <Route path="/" element={<MainPage onLogout={handleLogout} />} />
-                        <Route path="/create" element={<CreatePostPage onLogout={handleLogout} />} />
-                        <Route path="/categories" element={<CategoryPage onLogout={handleLogout} />} />
-                        <Route path="/posts/:id" element={<PostDetailPage onLogout={handleLogout} />} />
-                        <Route path="/tags" element={<TagPage onLogout={handleLogout} />} />
-                        <Route path="/drafts" element={<DraftPostsPage onLogout={handleLogout} />} />
-                        <Route path="*" element={<Navigate to="/" />} />
-                    </>
-                )}
-            </Routes>
-        </div>
-    </Router>
+        <Router>
+            <div>
+                <Routes>
+                    {!isLoggedIn ? (
+                        <>
+                            <Route path="/login" element={<LoginPage onLogin={() => setIsLoggedIn(true)} />} />
+                            <Route path="/register" element={<RegisterPage />} />
+                            <Route path="*" element={<Navigate to="/login" />} />
+                        </>
+                    ) : (
+                        <>
+                            <Route path="/" element={<MainPage onLogout={handleLogout} />} />
+                            <Route path="/create" element={<CreatePostPage onLogout={handleLogout} />} />
+                            <Route path="/categories" element={<CategoryPage onLogout={handleLogout} />} />
+                            <Route path="/posts/:id" element={<PostDetailPage onLogout={handleLogout} />} />
+                            <Route path="/tags" element={<TagPage onLogout={handleLogout} />} />
+                            <Route path="/drafts" element={<DraftPostsPage onLogout={handleLogout} />} />
+                            <Route path="*" element={<Navigate to="/" />} />
+                        </>
+                    )}
+                </Routes>
+            </div>
+        </Router>
 
 );
 }

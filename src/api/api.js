@@ -31,11 +31,11 @@ export const fetchPosts = async (categoryId, tagId) => {
     return res.json();
 };
 
-export async function registerUser(email, password, matchingPassword) {
+export async function registerUser(name, email, password, matchingPassword) {
     const res = await fetch("http://localhost:8080/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, matchingPassword }),
+        body: JSON.stringify({ name, email, password, matchingPassword }),
     });
 
     const contentType = res.headers.get("content-type") || "";

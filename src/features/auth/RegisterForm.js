@@ -2,6 +2,7 @@ import { useState } from "react";
 import { registerUser } from "../../api/api";
 
 function RegisterForm({ onRegistered }) {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [matchingPassword, setMatchingPassword] = useState("");
@@ -14,7 +15,6 @@ function RegisterForm({ onRegistered }) {
 
         setError("");
 
-        // Minimal client-side check for MVP
         if (password !== matchingPassword) {
             setError("Passwords do not match");
             return;
@@ -22,8 +22,8 @@ function RegisterForm({ onRegistered }) {
 
         try {
             setIsSubmitting(true);
-            await registerUser(email, password, matchingPassword); // no need to read response
-            onRegistered?.(); // parent will redirect to login
+            await registerUser(name, email, password, matchingPassword);
+            onRegistered?.();
         } catch (err) {
             setError(err.message || "Registration failed");
         } finally {
@@ -38,6 +38,23 @@ function RegisterForm({ onRegistered }) {
                     {error}
                 </div>
             )}
+
+            <div className="space-y-1.5">
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+                    Name
+                </label>
+                <input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400
+           shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+            </div>
 
             <div className="space-y-1.5">
                 <label htmlFor="email" className="block text-sm font-medium text-slate-700">
