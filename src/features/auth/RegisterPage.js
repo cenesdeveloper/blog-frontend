@@ -1,6 +1,10 @@
+// src/features/auth/RegisterPage.jsx
+import { useNavigate } from "react-router-dom";
 import RegisterForm from "./RegisterForm";
 
-function RegisterPage({ onRegistered, onGoToLogin }) {
+function RegisterPage() {
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
@@ -10,17 +14,15 @@ function RegisterPage({ onRegistered, onGoToLogin }) {
                         <p className="mt-1 text-sm text-slate-600">Join to start posting</p>
                     </div>
 
-                    <RegisterForm onRegistered={onRegistered} />
+                    <RegisterForm onRegistered={() => navigate("/login?registered=1")} />
 
                     <p className="mt-6 text-center text-sm text-slate-600">
                         Already have an account?{" "}
                         <a
                             href="/login"
                             onClick={(e) => {
-                                if (onGoToLogin) {
-                                    e.preventDefault();
-                                    onGoToLogin();
-                                }
+                                e.preventDefault();
+                                navigate("/login");
                             }}
                             className="font-medium text-indigo-600 hover:text-indigo-700"
                         >
