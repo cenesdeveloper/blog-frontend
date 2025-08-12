@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../shared/components/Header";
+import { getCurrentUserId, getCurrentUserEmail } from "../../shared/auth";
 
 function MainPage({ onLogout }) {
     const [posts, setPosts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
-    const [selectedCategories, setSelectedCategories] = useState([]); // <-- array
-    const [selectedTags, setSelectedTags] = useState([]);             // <-- array
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
     const [editingPostId, setEditingPostId] = useState(null);
     const [editFields, setEditFields] = useState({});
     const navigate = useNavigate();
 
+    const currentUserId = getCurrentUserId();
+    const currentUserEmail = getCurrentUserEmail();
     const token = localStorage.getItem("token");
 
     useEffect(() => {
@@ -19,22 +22,43 @@ function MainPage({ onLogout }) {
         fetch("http://localhost:8080/api/v1/tags").then(r => r.json()).then(setTags);
     }, []);
 
-    // Build URL with multiple categoryId & tagId query params
+    // Build URL with multiple categoryId & tagId query params + log IDs for sanity
     useEffect(() => {
         let url = "http://localhost:8080/api/v1/posts";
         const params = new URLSearchParams();
 
-        // Repeat keys like: ?categoryId=1&categoryId=2&tagId=10&tagId=11
         selectedCategories.forEach(id => params.append("categoryId", id));
         selectedTags.forEach(id => params.append("tagId", id));
 
         const qs = params.toString();
         if (qs) url += "?" + qs;
 
-        fetch(url).then(r => r.json()).then(setPosts);
-    }, [selectedCategories, selectedTags]);
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                console.log("currentUserId:", currentUserId);
+                console.log("currentUserEmail:", currentUserEmail);
+                console.log("first post author id:", data?.[0]?.author?.id);
+                console.log("first post author email:", data?.[0]?.author?.email);
+                setPosts(data);
+            });
+    }, [selectedCategories, selectedTags, currentUserId, currentUserEmail]);
+
+    // Ownership helper: try id match, else email match
+    const isOwner = (post) => {
+        const aid = post?.author?.id;
+        const aemail = post?.author?.email;
+        if (aid && currentUserId && String(aid) === String(currentUserId)) return true;
+        if (
+            aemail && currentUserEmail &&
+            String(aemail).toLowerCase() === String(currentUserEmail).toLowerCase()
+        ) return true;
+        return false;
+    };
 
     const handleDelete = async (id) => {
+        const post = posts.find(p => p.id === id);
+        if (!isOwner(post)) return; // defensive
         await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -43,6 +67,7 @@ function MainPage({ onLogout }) {
     };
 
     const handleEdit = (post) => {
+        if (!isOwner(post)) return; // defensive
         setEditingPostId(post.id);
         setEditFields({
             id: post.id,
@@ -87,7 +112,7 @@ function MainPage({ onLogout }) {
         }));
     };
 
-    // NEW: toggle helpers for filters
+    // Filter toggles
     const toggleCategoryFilter = (id) => {
         setSelectedCategories(prev =>
             prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -100,7 +125,7 @@ function MainPage({ onLogout }) {
     };
 
     const clearCategories = () => setSelectedCategories([]);
-    const clearTags =   () => setSelectedTags([]);
+    const clearTags = () => setSelectedTags([]);
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -233,7 +258,7 @@ function MainPage({ onLogout }) {
                                                     <label key={tag.id} className="inline-flex items-center gap-2 text-sm">
                                                         <input
                                                             type="checkbox"
-                                                            checked={editFields.tagIds.includes(tag.id)}
+                                                            checked={editFields.tagIds?.includes(tag.id)}
                                                             onChange={() => toggleTagInEdit(tag.id)}
                                                             className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                                                         />
@@ -281,20 +306,22 @@ function MainPage({ onLogout }) {
                                             ))}
                                         </div>
 
-                                        <div className="flex gap-2 pt-1">
-                                            <button
-                                                onClick={() => handleDelete(post.id)}
-                                                className="inline-flex items-center rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
-                                            >
-                                                Delete
-                                            </button>
-                                            <button
-                                                onClick={() => handleEdit(post)}
-                                                className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                                            >
-                                                Update
-                                            </button>
-                                        </div>
+                                        {isOwner(post) && (
+                                            <div className="flex gap-2 pt-1">
+                                                <button
+                                                    onClick={() => handleDelete(post.id)}
+                                                    className="inline-flex items-center rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
+                                                >
+                                                    Delete
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEdit(post)}
+                                                    className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                                                >
+                                                    Update
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
