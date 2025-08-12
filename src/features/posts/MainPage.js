@@ -287,7 +287,7 @@ function MainPage({ onLogout }) {
                                     <div className="space-y-3">
                                         <h4
                                             className="text-base font-semibold text-slate-900 underline underline-offset-4 cursor-pointer hover:text-indigo-700"
-                                            onClick={() => navigate(`/posts/${post.id}`)}
+                                            onClick={() => navigate(`/view/${post.id}`)}
                                         >
                                             {post.title}
                                         </h4>

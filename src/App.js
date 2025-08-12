@@ -8,6 +8,7 @@ import PostDetailPage from "./features/posts/PostDetailPage";
 import TagPage from "./features/tags/TagsPage";
 import DraftPostsPage from "./features/posts/DraftPostsPage";
 import RegisterPage from "./features/auth/RegisterPage";
+import ViewPostPage from "./features/posts/ViewPostPage";
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
                             <Route path="/posts/:id" element={<PostDetailPage onLogout={handleLogout} />} />
                             <Route path="/tags" element={<TagPage onLogout={handleLogout} />} />
                             <Route path="/drafts" element={<DraftPostsPage onLogout={handleLogout} />} />
+                            <Route path="/view/:id" element={<ViewPostPage onLogout={handleLogout} />} />
                             <Route path="*" element={<Navigate to="/" />} />
                         </>
                     )}
