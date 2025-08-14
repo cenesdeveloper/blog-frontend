@@ -11,7 +11,7 @@ function DraftPostsPage({ onLogout }) {
         setError("");
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch("http://localhost:8080/api/v1/posts/drafts", {
+            const res = await fetch("/api/v1/posts/drafts", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) {

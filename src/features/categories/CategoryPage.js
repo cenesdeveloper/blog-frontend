@@ -8,7 +8,7 @@ function CategoryPage({ onLogout }) {
     const [success, setSuccess] = useState("");
 
     const fetchCategories = () => {
-        fetch("http://localhost:8080/api/v1/categories")
+        fetch("/api/v1/categories")
             .then((res) => res.json())
             .then(setCategories)
             .catch(() => setError("Failed to load categories"));
@@ -25,7 +25,7 @@ function CategoryPage({ onLogout }) {
 
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:8080/api/v1/categories", {
+        const res = await fetch("/api/v1/categories", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -49,7 +49,7 @@ function CategoryPage({ onLogout }) {
 
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`http://localhost:8080/api/v1/categories/${id}`, {
+        const res = await fetch(`/api/v1/categories/${id}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });

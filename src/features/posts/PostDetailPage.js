@@ -25,7 +25,7 @@ function DraftPostsPage({ onLogout }) {
     const fetchDrafts = async () => {
         setError("");
         try {
-            const res = await fetch("http://localhost:8080/api/v1/posts/drafts", {
+            const res = await fetch("/api/v1/posts/drafts", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error(await res.text());
@@ -39,8 +39,8 @@ function DraftPostsPage({ onLogout }) {
     const fetchMeta = async () => {
         try {
             const [cats, tgs] = await Promise.all([
-                fetch("http://localhost:8080/api/v1/categories").then((r) => r.json()),
-                fetch("http://localhost:8080/api/v1/tags").then((r) => r.json()),
+                fetch("/api/v1/categories").then((r) => r.json()),
+                fetch("/api/v1/tags").then((r) => r.json()),
             ]);
             setCategories(cats);
             setTags(tgs);
@@ -85,7 +85,7 @@ function DraftPostsPage({ onLogout }) {
         setSaving(true);
         setError("");
         try {
-            const res = await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
+            const res = await fetch(`/api/v1/posts/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

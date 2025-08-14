@@ -1,5 +1,5 @@
 export const loginUser = async (email, password) => {
-    const res = await fetch("http://localhost:8080/api/v1/auth/login", {
+    const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -9,19 +9,19 @@ export const loginUser = async (email, password) => {
 };
 
 export const fetchCategories = async () => {
-    const res = await fetch("http://localhost:8080/api/v1/categories");
+    const res = await fetch("/api/v1/categories");
     if (!res.ok) throw new Error("Failed to fetch categories");
     return res.json();
 };
 
 export const fetchTags = async () => {
-    const res = await fetch("http://localhost:8080/api/v1/tags");
+    const res = await fetch("/api/v1/tags");
     if (!res.ok) throw new Error("Failed to fetch tags");
     return res.json();
 };
 
 export const fetchPosts = async (categoryId, tagId) => {
-    let url = "http://localhost:8080/api/v1/posts";
+    let url = "/api/v1/posts";
     const params = [];
     if (categoryId) params.push(`categoryId=${categoryId}`);
     if (tagId) params.push(`tagId=${tagId}`);
@@ -32,7 +32,7 @@ export const fetchPosts = async (categoryId, tagId) => {
 };
 
 export async function registerUser(name, email, password, matchingPassword) {
-    const res = await fetch("http://localhost:8080/api/v1/auth/register", {
+    const res = await fetch("/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, matchingPassword }),

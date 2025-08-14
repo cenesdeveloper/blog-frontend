@@ -14,12 +14,12 @@ function CreatePostPage({ onLogout }) {
     const [success, setSuccess] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/v1/categories")
+        fetch("/api/v1/categories")
             .then((res) => res.json())
             .then(setCategories)
             .catch(console.error);
 
-        fetch("http://localhost:8080/api/v1/tags")
+        fetch("/api/v1/tags")
             .then((res) => res.json())
             .then(setTags)
             .catch(console.error);
@@ -45,7 +45,7 @@ function CreatePostPage({ onLogout }) {
         const postData = { title, content, status, categoryId, tagIds };
 
         try {
-            const res = await fetch("http://localhost:8080/api/v1/posts", {
+            const res = await fetch("/api/v1/posts", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

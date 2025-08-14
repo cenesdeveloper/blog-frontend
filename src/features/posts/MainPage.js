@@ -18,13 +18,13 @@ function MainPage({ onLogout }) {
     const token = localStorage.getItem("token");
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/v1/categories").then(r => r.json()).then(setCategories);
-        fetch("http://localhost:8080/api/v1/tags").then(r => r.json()).then(setTags);
+        fetch("/api/v1/categories").then(r => r.json()).then(setCategories);
+        fetch("/api/v1/tags").then(r => r.json()).then(setTags);
     }, []);
 
     // Build URL with multiple categoryId & tagId query params + log IDs for sanity
     useEffect(() => {
-        let url = "http://localhost:8080/api/v1/posts";
+        let url = "/api/v1/posts";
         const params = new URLSearchParams();
 
         selectedCategories.forEach(id => params.append("categoryId", id));
@@ -59,7 +59,7 @@ function MainPage({ onLogout }) {
     const handleDelete = async (id) => {
         const post = posts.find(p => p.id === id);
         if (!isOwner(post)) return; // defensive
-        await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
+        await fetch(`/api/v1/posts/${id}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -84,7 +84,7 @@ function MainPage({ onLogout }) {
             alert("Please select a category before updating.");
             return;
         }
-        const res = await fetch(`http://localhost:8080/api/v1/posts/${id}`, {
+        const res = await fetch(`/api/v1/posts/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -100,7 +100,7 @@ function MainPage({ onLogout }) {
         }
 
         setEditingPostId(null);
-        fetch("http://localhost:8080/api/v1/posts").then(r => r.json()).then(setPosts);
+        fetch("/api/v1/posts").then(r => r.json()).then(setPosts);
     };
 
     const toggleTagInEdit = (tagId) => {

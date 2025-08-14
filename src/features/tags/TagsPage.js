@@ -9,7 +9,7 @@ function TagPage({ onLogout }) {
     const [success, setSuccess] = useState("");
 
     const fetchTags = () => {
-        fetch("http://localhost:8080/api/v1/tags")
+        fetch("/api/v1/tags")
             .then((res) => res.json())
             .then(setTags)
             .catch(() => setError("Failed to load tags"));
@@ -47,7 +47,7 @@ function TagPage({ onLogout }) {
 
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8080/api/v1/tags", {
+            const res = await fetch("/api/v1/tags", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -81,7 +81,7 @@ function TagPage({ onLogout }) {
         if (!window.confirm("Are you sure you want to delete this tag?")) return;
 
         try {
-            const res = await fetch(`http://localhost:8080/api/v1/tags/${id}`, {
+            const res = await fetch(`/api/v1/tags/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });

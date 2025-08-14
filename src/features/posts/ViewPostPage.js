@@ -39,7 +39,7 @@ export default function ViewPostPage({ onLogout }) {
         setErr("");
         setLoading(true);
         const token = localStorage.getItem("token");
-        fetch(`http://localhost:8080/api/v1/posts/${id}`, {
+        fetch(`/api/v1/posts/${id}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
             .then(async (res) => {
