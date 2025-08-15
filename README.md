@@ -2,6 +2,9 @@
 
 > **Note:** The live demo may take up to 50 seconds to load initially due to server cold start on Render.
 
+> **Live Demo:** [Frontend](https://blog-frontend-green-five.vercel.app/)  
+> **Repos:** This frontend (you are here) · [Backend Repo](https://github.com/cenesdeveloper/blog-backend)
+
 This is the **frontend** for the Blog Application, built with React. It communicates with the backend to provide a complete blogging platform with post creation, category/tag filtering, and draft management.
 
 ## 🚀 Features
@@ -10,15 +13,14 @@ This is the **frontend** for the Blog Application, built with React. It communic
 - Filter posts by **category** or **tag**
 - View individual posts in detail
 - **Create posts** (requires a category to be created first)
-- Create, update, and delete categories and tags
+- Get, create, and delete categories and tags
 - Manage draft posts
 - Responsive design for desktop and mobile
 
+
 ## 📸 Screenshots
 
-
-
-![Screenshot Placeholder](screenshot.png)
+<img width="2087" height="721" alt="image" src="https://github.com/user-attachments/assets/597561dc-5b53-4e54-9613-f74cd0593198" />
 
 ## 🛠 Tech Stack
 
@@ -42,7 +44,7 @@ frontend/
 ### Prerequisites
 - Node.js (>= 16)
 - npm or yarn
-- Backend server running ([Backend Repo](BACKEND_REPO_LINK))
+- Backend server running ([Backend Repo](https://github.com/cenesdeveloper/blog-backend))
 
 ### Installation
 ```bash
@@ -56,11 +58,10 @@ npm install
 
 # Start the development server
 npm start
+```
+The app will run locally at:  
+http://localhost:3000  
 
-The app will run at:  
-
-http://localhost:3000
-
-### Environment Variables
-Create a `.env` file in the `frontend` folder with:
-REACT_APP_API_BASE_URL=http://localhost:8080
+Make sure the backend is running (see backend repo for setup).  
+This frontend uses `vercel.json` to proxy API calls to the backend.  
+If your backend URL changes, update the `"dest"` field in `vercel.json`.
