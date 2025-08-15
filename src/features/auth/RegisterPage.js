@@ -31,7 +31,7 @@ function RegisterPage() {
                     </p>
                 </div>
 
-                <p className="mt-6 text-center text-xs text-slate-400">© {new Date().getFullYear()} Your App</p>
+                <p className="mt-6 text-center text-xs text-slate-400">© {new Date().getFullYear()} Blog App</p>
             </div>
         </div>
     );

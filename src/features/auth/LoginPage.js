@@ -30,7 +30,7 @@ function LoginPage({ onLogin, onGoToRegister }) {
                 </div>
 
                 <p className="mt-6 text-center text-xs text-slate-400">
-                    © {new Date().getFullYear()} Your App
+                    © {new Date().getFullYear()} Blog App
                 </p>
             </div>
         </div>
